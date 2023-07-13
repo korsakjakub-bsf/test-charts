@@ -1,0 +1,46 @@
+envName: null
+
+projectOverride: null
+
+
+default:
+  project:
+    roles: |
+      - name: read-only
+        description: Read-only privileges within project
+        policies:
+        - p, proj:{{ $.curProjName }}:read-only, applications, get, {{ $.curProjName }}/*, allow
+      - name: ci-role
+        description: Role to allow CICD pipeline to sync apps within project
+        policies:
+        - p, proj:{{ $.curProjName }}:ci-role, applications, sync, {{ $.curProjName }}/*, allow
+    destinations: |
+      - namespace: {{ $.Values.default.app.destination.namespace | required "Missing proj dest namespace"}}
+        server: {{ $.Values.default.app.destination.server | required "Missing proj dest server" }}
+  app:
+    enableAutoSync: null
+    autoSyncPrune: true
+    destination:
+      namespace: null
+      server: null
+    project: null
+    source:
+      path: null
+      repoURL: null
+      targetRevision: HEAD
+
+      extraSourceFields: |
+        helm:
+          valueFiles:
+          - {{ $.Values.envName }}-values.yaml
+
+applications:
+  foo-bar:
+    enabled: false
+    destination:
+      namespace: null
+      server: null
+    source:
+      path: foo-bar
+      repoURL: https://github.com/korsakub-bsf/foo-bar.git
+
